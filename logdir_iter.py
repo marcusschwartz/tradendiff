@@ -58,7 +58,10 @@ class LogdirIter:
     """Get the next log record."""
     if not len(self.next_records):
       self.nextDate()
+
     (reader_id, next_ts, next_record) = self.next_records.pop(0)
+
+    # read the next record from the file that gave us this record, or close it
     try:
       record = next(self.active_readers[reader_id])
       ts = datetime.time.fromisoformat(record['timestamp'])
@@ -70,12 +73,17 @@ class LogdirIter:
           self.files_by_date[self.active_date][reader_id].name,
           self.reader_counts[reader_id]))
       pass
+
+    # maintain some debugging stats
     self.reader_counts[reader_id] += 1
     self.total_count += 1
+
     return [datetime.datetime.combine(self.active_date, next_ts), next_record]
 
   def nextDate(self):
     """Start processing the next available date."""
+
+    # are we at the end of the logdir?
     if not self.remaining_dates:
       logging.info("[%s] %d records processed" %
                    (self.o_id, self.total_count))
@@ -131,6 +139,7 @@ class LogdirIter:
     """Find all filenames that we can parse a date from."""
     files_by_date = defaultdict(list)
     filecount = 0
+
     with os.scandir(self.path) as d:
       for p in d:
         if not p.is_file():
@@ -144,6 +153,7 @@ class LogdirIter:
         except Exception as e:
           self.logger.warning(
               '[%s] ingoring input file "%s": %s' % (self.o_id, p.name, e))
+
     self.logger.info("[%s] found %d input files for %d dates" %
                      (self.o_id, filecount, len(files_by_date)))
     return files_by_date
