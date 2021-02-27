@@ -76,7 +76,8 @@ class LogdirIter:
     self.reader_counts[reader_id] += 1
     self.total_count += 1
 
-    return [datetime.datetime.combine(self.active_date, next_ts), next_record]
+    next_record['timestamp'] = datetime.datetime.combine(self.active_date, next_ts)
+    return next_record
 
   def nextDate(self):
     """Start processing the next available date."""
