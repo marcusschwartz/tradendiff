@@ -11,7 +11,7 @@ sets of trading logs against each other.
 ## Requirements
 
 * python3 in /usr/bin
-* https://pypi.org/project/sortedcollections installed
+* https://pypi.org/project/sortedcontainers installed
 
 ## Usage
 
@@ -49,11 +49,12 @@ Options
 * n - Total number of records in all log files.
 * j - Largest number of trades in any extreme_jitter time period.
 * Runtime upper bound: O(n + j log j)
-** Honestly this is a guess, I am not a mathematician and I have not evaluated
-   the algorithms used in the sortedcollections package.
+    * Honestly this is a guess, I am not a mathematician and I have not evaluated
+      the algorithms used in the sortedcontainers package.
 * Space upper bound: O(j)
 
 ## To-Do
 
+* Add unit tests.
 * Investigate alternatives to CsvReader that are more graceful about different
   field types while still being performant.
