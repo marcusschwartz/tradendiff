@@ -47,6 +47,12 @@ Options
 * Each input file should contain any other fields that are specified in
   the --reconcile_fields runtime option.
 
+## Performance
+
+This was benchmarked on a 2017 Macbook Pro with a 2.3ghz i5 CPU.  Two log
+sets with a total of ~780k records were processed at a rate of approximately
+40k records/second.
+
 ## Complexity Analysis (Roughly)
 
 * n - Total number of records in all log files.
@@ -60,13 +66,16 @@ Options
 ## Source Files
 
 * diff_trades.py - command line interface for differ
-* trade_ndiffer.py - library containing differ logic
-* logdir_iter.py - library for accessing a log set as a single iterator
+* trade_ndiffer.py - TradeNDiffer - library containing differ logic
+* logdir_iter.py - LogdirIter - library for accessing a log set as a single
+  iterator
 * logdir_cat.py - command line wrapper for logdir_iter.py
 
 ## To-Do
 
 * Replace SortedDict with SortedList.
 * Add unit tests.
+* Enhance instrumentation.
+* Include source filename with records returned by LogdirIter.
 * Investigate alternatives to CsvReader that are more graceful about different
   field types while still being performant.
