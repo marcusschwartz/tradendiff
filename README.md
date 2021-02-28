@@ -51,7 +51,7 @@ Options
 * Each input file should include a 'trade' field that will be used to
   match records across log sets.
 * Each input file should contain any other fields that are specified in
-  the --reconcile_fields runtime option.
+  the `--reconcile_fields` runtime option.
 
 ## Performance
 
