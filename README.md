@@ -1,9 +1,9 @@
 # tradendiff - Example code for trade data reconciliation
 
-This is some code that I put together while interviewing for a real-time 
-trading SRE position with a major hedge fund.  It represents about two
-hours of design work, five hours of focused coding, thirty minutes of
-documentation, and probably too much polishing.
+This is a design and some code that I put together while interviewing
+for a real-time trading SRE position with a major hedge fund.  It
+represents about one work day of focused effort, and probably too much
+polishing.
 
 This code will identify discrepencies found when comparing two or more
 sets of trading logs against each other.
@@ -19,14 +19,17 @@ sets of trading logs against each other.
 
 Options
 
-* --max_jitter_seconds - Maximum allowable delta for timestamps for a 
+* `--max_jitter_seconds=900` - Maximum allowable delta for timestamps for a 
   single trade across log sets.
-* --extreme_jitter_seconds - If records for a single trade have a 
+* `--extreme_jitter_seconds=3600` - If records for a single trade have a 
   timestamp delta greater than this value, the records will be reported
   as missing.
-* --reconcile_fields - A comma-separated list of fields that are expected
-  to be "equal" for a single trade across log sets.  Note that the matching
-  is case-insensitive and a single leading - [dash] will be ignored.
+* `--reconcile_fields=symbol,price,quantity` - A comma-separated list of fields
+  that are expected to be "equal" for a single trade across log sets.  Note 
+  that the matching is case-insensitive and a single leading - [dash] will be 
+  ignored.
+* `--include_details` - Include the full log records associated with each 
+  reconcilation failure in the output, one record per line.
 
 ## Input Data Format
 
@@ -36,7 +39,7 @@ Options
   contain.  Acceptable formats are YYYYMMDD, MMDDYYYY, and YY-MM-DD.
 * Four digit years should be >= 1900
 * Two digit years will have 2000 added to them.
-* Input files should be comma-separated.
+* Records should be comma-separated and begin with a field list.
 * Each input file should include a 'timestamp' field that s ISO8601
   formatted (time only, no date).
 * Each input file should include a 'trade' field that will be used to
@@ -49,8 +52,8 @@ Options
 * n - Total number of records in all log files.
 * j - Largest number of trades in any extreme_jitter time period.
 * Runtime upper bound: O(n + j log j)
-    * Honestly this is a guess, I am not a mathematician and I have not evaluated
-      the algorithms used in the sortedcontainers package.
+    * Honestly this is a guess, I am not a mathematician and I have not 
+      evaluated the algorithms used in the sortedcontainers package.
 * Space upper bound: O(j)
 
 ## To-Do
