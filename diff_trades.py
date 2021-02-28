@@ -9,6 +9,23 @@ from trade_ndiffer import TradeNDiffer
 from logdir_iter import LogdirIter
 
 
+def format_diff(diff):
+  records = []
+  iter_idx = 0
+  for logdir in args:
+    record = diff[2][iter_idx]
+    output = ['[%s]' % logdir]
+    if record:
+      output.append('timestamp=%s' % record['timestamp'])
+      for f in options.reconcile_fields.split(','):
+        output.append('%s=%s' % (f, record[f]))
+    else:
+      output.append('[missing]')
+    records.append('%s' % ' '.join(output))
+    iter_idx += 1
+  return "%s, discrepencies [%s]\n  %s" % (
+      diff[0], ','.join(diff[1]), '\n  '.join(records))
+
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger('tradendiff')
@@ -38,4 +55,5 @@ differ = TradeNDiffer(
   reconcile_fields=options.reconcile_fields.split(','),
 )
 
-differ.diff()
+for diff in differ:
+  print(format_diff(diff))

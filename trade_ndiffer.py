@@ -12,7 +12,7 @@ class TradeNDiffer:
     self.extreme_jitter = extreme_jitter
     self.reconcile_fields = reconcile_fields
 
-  def diff(self):
+  def __iter__(self):
     # the next record from each log iter, sorted by the timestamp of the record
     # each entry is [iter_idx, record]
     self.next_records = sortedcontainers.SortedList(key=lambda x: x[1]['timestamp'])
@@ -28,14 +28,31 @@ class TradeNDiffer:
       self.next_records.add([iter_idx, next(log_iter)])
       iter_idx += 1
 
-    self.IterAll()
+    return self 
 
-    for unfinished_trade in self.pending_trades.keys():
-      self.ReconcileTrade(unfinished_trade)
+  def __next__(self):
+    if not self.next_records:
+      # if there are no more records, flush any partial trades
+      for unfinished_trade in self.pending_trades.keys():
+        r = self.ReconcileTrade(unfinished_trade)
+        if r:
+          return r
+      # and we're done
+      raise StopIteration
 
-  def IterAll(self):
     while len(self.next_records):
-      # get the oldest available record and backfill it
+      # if any pending records are past the extreme jitter threshold, note them
+      # as having at least one missing related record
+      # use the timestamp of the next record from any stream as a basis for the threshold
+      (iter_idx, record) = self.next_records[0]
+      threshold = record['timestamp'] - self.extreme_jitter
+      while self.pending_trades_by_ts and self.pending_trades_by_ts.peekitem(index=0)[0][0] < threshold:
+        t_id = self.pending_trades_by_ts.peekitem(index=0)[0][2]
+        r = self.ReconcileTrade(t_id)
+        if r:
+          return r
+
+      # get the oldest available record and backfill it if possible
       (iter_idx, record) = self.next_records.pop(0)
       try:
         backfill_record = next(self.log_iters[iter_idx])
@@ -43,16 +60,6 @@ class TradeNDiffer:
       except StopIteration:
         # it's the end of the iter as we know it
         pass
-
-      # if any pending records are past the extreme jitter threshold, note them
-      # as having at least one missing related record
-      threshold = record['timestamp'] - self.extreme_jitter
-#      if self.pending_trades_by_ts:
-#        print("PENDING")
-#        print(self.pending_trades_by_ts.peekitem(index=0))
-      while self.pending_trades_by_ts and self.pending_trades_by_ts.peekitem(index=0)[0][0] < threshold:
-        t_id = self.pending_trades_by_ts.peekitem(index=0)[0][2]
-        self.ReconcileTrade(t_id)
 
       # if this trade id hasn't been seen yet, add it to the pending dict
       if record['trade'] not in self.pending_trades:
@@ -66,7 +73,12 @@ class TradeNDiffer:
 
       # if we have received this trade from all of the log iters, reconcile it
       if None not in self.pending_trades[record['trade']]:
-        self.ReconcileTrade(record['trade'])
+        r = self.ReconcileTrade(record['trade'])
+        if r:
+          return r
+
+    # apparently we've reconciled the last trade
+    raise StopIteration
 
   def ReconcileTrade(self, trade_id):
     timestamps = []
@@ -92,11 +104,9 @@ class TradeNDiffer:
       if len(field_values[field]) > 1:
         diff_types.append(field)
     
+    diff_record = None
     if len(diff_types):
-      diff_record = [diff_types, self.pending_trades[trade_id]]
-      print(diff_record)
-#    else:
-#      print("Trade %s ok" % (trade_id))
+      diff_record = [trade_id, diff_types, self.pending_trades[trade_id]]
     
     iter_idx = 0
 
@@ -106,3 +116,5 @@ class TradeNDiffer:
       iter_idx += 1
 
     del self.pending_trades[trade_id]
+
+    return diff_record
