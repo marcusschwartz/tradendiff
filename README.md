@@ -58,6 +58,7 @@ Options
 
 ## To-Do
 
+* Replace SortedDict with SortedList.
 * Add unit tests.
 * Investigate alternatives to CsvReader that are more graceful about different
   field types while still being performant.
