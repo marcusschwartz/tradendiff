@@ -14,6 +14,7 @@ class TradeNDiffer:
     self.reconcile_fields = reconcile_fields
 
   def __iter__(self):
+    """Reset iterator."""
     # the next record from each log iter, sorted by the timestamp of the record
     # each entry is [iter_idx, record]
     self.next_records = sortedcontainers.SortedList(
@@ -33,6 +34,7 @@ class TradeNDiffer:
     return self
 
   def __next__(self):
+    """Return the next record from the iterator."""
     if not self.next_records:
       # if there are no more records, flush any partial trades
       for unfinished_trade in self.pending_trades.keys():
@@ -84,6 +86,10 @@ class TradeNDiffer:
     raise StopIteration
 
   def reconcileTrade(self, trade_id):
+    """Given a trade_id that has received all available records from different
+       log streams, check that the records are consistent and return a diff 
+       record if they are not.
+    """
     timestamps = []
     field_values = defaultdict(set)
 
