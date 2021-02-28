@@ -51,10 +51,18 @@ Options
 
 * n - Total number of records in all log files.
 * j - Largest number of trades in any extreme_jitter time period.
-* Runtime upper bound: O(n + j log j)
+* f - Largest number of input files in all log sets for any day.
+* Runtime upper bound: O(n + j log j + f log f)
     * Honestly this is a guess, I am not a mathematician and I have not 
       evaluated the algorithms used in the sortedcontainers package.
-* Space upper bound: O(j)
+* Space upper bound: O(j + f)
+
+## Source Files
+
+* diff_trades.py - command line interface for differ
+* trade_ndiffer.py - library containing differ logic
+* logdir_iter.py - library for accessing a log set as a single iterator
+* logdir_cat.py - command line wrapper for logdir_iter.py
 
 ## To-Do
 
