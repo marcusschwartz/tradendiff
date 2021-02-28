@@ -21,7 +21,7 @@ class TradeNDiffer:
     self.pending_trades = dict()
 
     # a sorted dict of [timestamp, iter_idx, T_ID] -> True
-    self.pending_trades_by_ts = sortedcontainers.SortedDict() # key=lambda x: x[0])
+    self.pending_records = sortedcontainers.SortedDict() # key=lambda x: x[0])
 
     iter_idx = 0
     for log_iter in self.log_iters:
@@ -46,8 +46,8 @@ class TradeNDiffer:
       # use the timestamp of the next record from any stream as a basis for the threshold
       (iter_idx, record) = self.next_records[0]
       threshold = record['timestamp'] - self.extreme_jitter
-      while self.pending_trades_by_ts and self.pending_trades_by_ts.peekitem(index=0)[0][0] < threshold:
-        t_id = self.pending_trades_by_ts.peekitem(index=0)[0][2]
+      while self.pending_records and self.pending_records.peekitem(index=0)[0][0] < threshold:
+        t_id = self.pending_records.peekitem(index=0)[0][2]
         r = self.ReconcileTrade(t_id)
         if r:
           return r
@@ -69,7 +69,7 @@ class TradeNDiffer:
         raise ValueError('duplicate trade')
 
       self.pending_trades[record['trade']][iter_idx] = record
-      self.pending_trades_by_ts[(record['timestamp'], iter_idx, record['trade'])] = True
+      self.pending_records[(record['timestamp'], iter_idx, record['trade'])] = True
 
       # if we have received this trade from all of the log iters, reconcile it
       if None not in self.pending_trades[record['trade']]:
@@ -112,7 +112,7 @@ class TradeNDiffer:
 
     for iter_record in self.pending_trades[trade_id]:
       if iter_record:
-        del self.pending_trades_by_ts[(iter_record['timestamp'], iter_idx, trade_id)]
+        del self.pending_records[(iter_record['timestamp'], iter_idx, trade_id)]
       iter_idx += 1
 
     del self.pending_trades[trade_id]
