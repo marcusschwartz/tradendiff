@@ -4,6 +4,7 @@ import sortedcontainers
 
 
 class TradeNDiffer:
+  """Reconcile records from multiple log iterators."""
   DT_MISS = 0
 
   def __init__(self, log_iters, max_jitter, extreme_jitter, reconcile_fields):
@@ -34,7 +35,7 @@ class TradeNDiffer:
     if not self.next_records:
       # if there are no more records, flush any partial trades
       for unfinished_trade in self.pending_trades.keys():
-        r = self.ReconcileTrade(unfinished_trade)
+        r = self.reconcileTrade(unfinished_trade)
         if r:
           return r
       # and we're done
@@ -48,7 +49,7 @@ class TradeNDiffer:
       threshold = record['timestamp'] - self.extreme_jitter
       while self.pending_records and self.pending_records.peekitem(index=0)[0][0] < threshold:
         t_id = self.pending_records.peekitem(index=0)[0][2]
-        r = self.ReconcileTrade(t_id)
+        r = self.reconcileTrade(t_id)
         if r:
           return r
 
@@ -73,14 +74,14 @@ class TradeNDiffer:
 
       # if we have received this trade from all of the log iters, reconcile it
       if None not in self.pending_trades[record['trade']]:
-        r = self.ReconcileTrade(record['trade'])
+        r = self.reconcileTrade(record['trade'])
         if r:
           return r
 
     # apparently we've reconciled the last trade
     raise StopIteration
 
-  def ReconcileTrade(self, trade_id):
+  def reconcileTrade(self, trade_id):
     timestamps = []
     field_values = defaultdict(set)
 
