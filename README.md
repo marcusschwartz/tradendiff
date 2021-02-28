@@ -8,6 +8,12 @@ polishing.
 This code will identify discrepencies found when comparing two or more
 sets of trading logs against each other.
 
+## License
+
+This code and design are Copyright (c) 2021 by Marcus Schwartz.  It is
+distributed under the Creative Commons Attribution-NonCommercial-ShareAlike
+license version 4.0.  See LICENSE for more information.
+
 ## Requirements
 
 * python3 in /usr/bin
