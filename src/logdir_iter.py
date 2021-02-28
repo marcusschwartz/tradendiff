@@ -10,7 +10,7 @@ from sortedcontainers import SortedList
 
 class LogdirIter:
   """Present a directory full of csv log files as a sorted iter of records.
-     
+
      Each log file must have an ISO-formatted 'timestamp' column.
 
      Log filenames must begin with either YYYYMMDD, MMYYDDDD, or YY-MM-DD.
@@ -76,7 +76,8 @@ class LogdirIter:
     self.reader_counts[reader_id] += 1
     self.total_count += 1
 
-    next_record['timestamp'] = datetime.datetime.combine(self.active_date, next_ts)
+    next_record['timestamp'] = datetime.datetime.combine(
+        self.active_date, next_ts)
     return next_record
 
   def nextDate(self):

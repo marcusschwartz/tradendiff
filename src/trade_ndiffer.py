@@ -16,20 +16,21 @@ class TradeNDiffer:
   def __iter__(self):
     # the next record from each log iter, sorted by the timestamp of the record
     # each entry is [iter_idx, record]
-    self.next_records = sortedcontainers.SortedList(key=lambda x: x[1]['timestamp'])
+    self.next_records = sortedcontainers.SortedList(
+        key=lambda x: x[1]['timestamp'])
 
     # a dict of T_ID -> [rec.log_iter1, ..., rec.log_iterN]
     self.pending_trades = dict()
 
     # a sorted dict of [timestamp, iter_idx, T_ID] -> True
-    self.pending_records = sortedcontainers.SortedDict() # key=lambda x: x[0])
+    self.pending_records = sortedcontainers.SortedDict()  # key=lambda x: x[0])
 
     iter_idx = 0
     for log_iter in self.log_iters:
       self.next_records.add([iter_idx, next(log_iter)])
       iter_idx += 1
 
-    return self 
+    return self
 
   def __next__(self):
     if not self.next_records:
@@ -70,7 +71,8 @@ class TradeNDiffer:
         raise ValueError('duplicate trade')
 
       self.pending_trades[record['trade']][iter_idx] = record
-      self.pending_records[(record['timestamp'], iter_idx, record['trade'])] = True
+      self.pending_records[(record['timestamp'], iter_idx,
+                            record['trade'])] = True
 
       # if we have received this trade from all of the log iters, reconcile it
       if None not in self.pending_trades[record['trade']]:
@@ -104,11 +106,11 @@ class TradeNDiffer:
     for field in self.reconcile_fields:
       if len(field_values[field]) > 1:
         diff_types.append(field)
-    
+
     diff_record = None
     if len(diff_types):
       diff_record = [trade_id, diff_types, self.pending_trades[trade_id]]
-    
+
     iter_idx = 0
 
     for iter_record in self.pending_trades[trade_id]:
