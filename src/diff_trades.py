@@ -9,22 +9,25 @@ from trade_ndiffer import TradeNDiffer
 from logdir_iter import LogdirIter
 
 
-def format_diff(diff):
-  records = []
-  iter_idx = 0
-  for logdir in args:
-    record = diff[2][iter_idx]
-    output = ['[%s]' % logdir]
-    if record:
-      output.append('timestamp=%s' % record['timestamp'])
-      for f in options.reconcile_fields.split(','):
-        output.append('%s=%s' % (f, record[f]))
-    else:
-      output.append('[missing]')
-    records.append('%s' % ' '.join(output))
-    iter_idx += 1
-  return "%s, discrepencies [%s]\n  %s" % (
-      diff[0], ','.join(diff[1]), '\n  '.join(records))
+def format_diff(diff, include_details):
+  formatted = "%s, discrepencies [%s]" % (diff[0], ','.join(diff[1]))
+  if include_details:
+    records = []
+    iter_idx = 0
+    for logdir in args:
+      record = diff[2][iter_idx]
+      output = ['[%s]' % logdir]
+      if record:
+        output.append('timestamp=%s' % record['timestamp'])
+        for f in options.reconcile_fields.split(','):
+          output.append('%s=%s' % (f, record[f]))
+      else:
+        output.append('[missing]')
+      records.append('%s' % ' '.join(output))
+      iter_idx += 1
+    formatted = '%s\n  %s' % (formatted, '\n  '.join(records))
+
+  return formatted
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -42,6 +45,9 @@ parser.add_option(
     '--reconcile_fields', dest='reconcile_fields',
     default='symbol,price,quantity',
     help='fields to reconcile in addition to timestamp')
+parser.add_option(
+    '--include_details', dest='include_details', action='store_true',
+    help='include the full records for each reconciliation failure')
 
 (options, args) = parser.parse_args()
 
@@ -57,4 +63,4 @@ differ = TradeNDiffer(
 )
 
 for diff in differ:
-  print(format_diff(diff))
+  print(format_diff(diff, options.include_details))
