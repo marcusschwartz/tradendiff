@@ -15,6 +15,7 @@ class LogdirIter:
 
      Log filenames must begin with either YYYYMMDD, MMYYDDDD, or YY-MM-DD.
      Dates earlier than 1900 may have unexpected behavior.
+     Two-digit years will have 2000 added to them.
   """
 
   def __init__(self, path, o_id=None, logger=None):
