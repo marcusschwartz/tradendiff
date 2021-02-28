@@ -7,10 +7,10 @@ class TradeNDiffer:
   """Reconcile records from multiple log iterators."""
   DT_MISS = 0
 
-  def __init__(self, log_iters, max_jitter, extreme_jitter, reconcile_fields):
+  def __init__(self, log_iters, max_skew, extreme_skew, reconcile_fields):
     self.log_iters = log_iters
-    self.max_jitter = max_jitter
-    self.extreme_jitter = extreme_jitter
+    self.max_skew = max_skew
+    self.extreme_skew = extreme_skew
     self.reconcile_fields = reconcile_fields
 
   def __iter__(self):
@@ -45,11 +45,11 @@ class TradeNDiffer:
       raise StopIteration
 
     while len(self.next_records):
-      # if any pending records are past the extreme jitter threshold, note them
+      # if any pending records are past the extreme skew threshold, note them
       # as having at least one missing related record
       # use the timestamp of the next record from any stream as a basis for the threshold
       (iter_idx, record) = self.next_records[0]
-      threshold = record['timestamp'] - self.extreme_jitter
+      threshold = record['timestamp'] - self.extreme_skew
       while self.pending_records and self.pending_records.peekitem(index=0)[0][0] < threshold:
         t_id = self.pending_records.peekitem(index=0)[0][2]
         r = self.reconcileTrade(t_id)
@@ -106,7 +106,7 @@ class TradeNDiffer:
             val = val[1:]
           field_values[field].add(val)
 
-    if max(timestamps) - min(timestamps) > self.max_jitter:
+    if max(timestamps) - min(timestamps) > self.max_skew:
       diff_types.append('timestamp')
 
     for field in self.reconcile_fields:

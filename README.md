@@ -25,9 +25,9 @@ license version 4.0.  See LICENSE for more information.
 
 Options
 
-* `--max_jitter_seconds=900` - Maximum allowable delta for timestamps for a 
+* `--max_skew_seconds=900` - Maximum allowable delta for timestamps for a 
   single trade across log sets.
-* `--extreme_jitter_seconds=3600` - If records for a single trade have a 
+* `--extreme_skew_seconds=3600` - If records for a single trade have a 
   timestamp delta greater than this value, the records will be reported
   as missing.
 * `--reconcile_fields=symbol,price,quantity` - A comma-separated list of fields
@@ -62,7 +62,7 @@ sets with a total of ~780k records were processed at a rate of approximately
 ## Complexity Analysis (Roughly)
 
 * n - Total number of records in all log files.
-* j - Largest number of trades in any extreme_jitter time period.
+* j - Largest number of trades in any extreme_skew time period.
 * f - Largest number of input files in all log sets for any day.
 * Runtime upper bound: O(n + j log j + f log f)
     * Honestly this is a guess, I am not a mathematician and I have not 
