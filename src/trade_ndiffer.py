@@ -24,7 +24,7 @@ class TradeNDiffer:
     self.pending_trades = dict()
 
     # a sorted dict of [timestamp, iter_idx, T_ID] -> True
-    self.pending_records = sortedcontainers.SortedDict()  # key=lambda x: x[0])
+    self.pending_records = sortedcontainers.SortedDict()
 
     iter_idx = 0
     for log_iter in self.log_iters:
