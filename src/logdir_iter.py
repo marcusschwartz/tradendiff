@@ -113,7 +113,12 @@ class LogdirIter:
       self.reader_counts.append(0)
 
   def dateFromPath(self, path):
-    """Try to guess at the date of the logs based on the filename."""
+    """Try to guess at the date of the logs based on the filename.
+
+       WARNING: This logic is kind of clowny.  Why do we allow 
+       YYYYMMDD and MMDDYYYY in the same directory but not
+       YYYYDDMM or DDMMYYYY?
+    """
     basename = os.path.basename(path)
 
     # YYYYDDMM
